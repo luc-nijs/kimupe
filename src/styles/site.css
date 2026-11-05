@@ -47,6 +47,7 @@ header.top { padding: 16px 16px 0; text-align: center; }
 .quotes em { display: block; }
 .cover { width: 343px; margin: 28px auto 0; }
 .book { margin: 24px 0 0; font: 400 24px/1.4 var(--body); text-align: center; }
+.book a:hover { color: var(--orange); }
 .book-cover { width: 80px; margin: 10px auto 0; }
 
 /* Publications */
