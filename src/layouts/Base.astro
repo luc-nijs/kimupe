@@ -1,0 +1,41 @@
+---
+import '../styles/site.css';
+import { nav } from '../data/nav.js';
+
+interface Props { title: string; path: string }
+const { title, path } = Astro.props;
+
+const isOn = (item) => item.href === path || (item.children ?? []).some((c) => c.href === path);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} | Kimupe</title>
+    <meta name="keywords" content="music and movement" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Manrope:wght@300..700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="top">
+      <img class="logo" src="/images/kimupe-logo.png" alt="KiMuPe" width="268" height="80" />
+      <nav aria-label="Main">
+        <ul class="menu">
+          {nav.map((item) => (
+            <li class={item.children ? 'has-sub' : ''}>
+              <a href={item.href} class={isOn(item) ? 'on' : ''}>{item.label}</a>
+              {item.children && (
+                <ul class="sub">
+                  {item.children.map((c) => <li><a href={c.href} class={c.href === path ? 'on' : ''}>{c.label}</a></li>)}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </header>
+    <main><slot /></main>
+    <footer>© 2026 by Luc Nijs</footer>
+  </body>
+</html>

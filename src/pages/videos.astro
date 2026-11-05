@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+
+const youtube = (id) => `https://www.youtube.com/embed/${id}`;
+const videos = [
+  [youtube('q7LvFlK54zs'), 'Stockhausen-In Freundschaft by Daniel Padmos'],
+  [youtube('BKezUd_xw20'), 'Salut Salon "Wettstreit zu viert" | "Competitive Foursome"'],
+  [youtube('UAM2y1SOsIs'), 'Riverdancing Violinists'],
+  [youtube('1O9Ro0TaXH4'), 'The IGUDESMAN & JOO UNICEF World Record of the Most Dancing Violinists'],
+  [youtube('C4hPgxe2Vf4'), 'Martin Fröst plays Peacock Tales... with a mask on!'],
+  [youtube('AIdwOPk9wEo'), 'K. Stockhausen "In Freundschaft" - Barbara Chemelli (Flute)'],
+  ['https://player.vimeo.com/video/6761185', 'InTouch (for moving flutist and electronics)'],
+  [youtube('CWAjo6VuF2w'), 'Transcend - Lindsey Stirling at TEDxBerkeley'],
+  [youtube('782GpSv9pTM'), "Movement and Music: University of Maryland Symphony Orchestra's Prelude to the Afternoon of a Faun"],
+  [youtube('f0heLa3kN4Q'), 'America got talent - Nuttin but stringz - Amazing violin'],
+];
+---
+<Base title="Videos" path="/videos">
+  <div class="page" style="max-width:none">
+    <a class="suggest" href="mailto:luc.nijs@uni.lu?subject=Kimupe%20Video">Suggest a video</a>
+    <div class="videos">
+      {videos.map(([src, title]) => (
+        <iframe src={src} title={title} loading="lazy" allow="fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>
+      ))}
+    </div>
+  </div>
+</Base>

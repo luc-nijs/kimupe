@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Newest first: date, venue, topic. `resources` adds the link to the ISME page.
+const talks = [
+  ['Oct. 16, 2026', 'Clarinet & Saxophone day, Knokke-Heist (BE)', 'Lecture on the kinemusical approach & book presentation'],
+  ['July 30, 2026', 'ISME2026', 'Workshop Kinemusical Approach', { resources: true }],
+  ['July 30, 2026', 'ISME2026', 'Presentation "Fostering a synergy between the development of well-being and musicianship"'],
+  ['Apr. 26, 2026', 'Matinée de réflexion: la clarinette à 6 ans (LCA), Fentange (LU)', 'Clarinet teaching in Early Childhood'],
+  ['Feb. 29, 2026', 'IFEN, Belval (LU)', 'Embodiment in music education'],
+  ['Nov. 28, 2025', 'IFEN, Belval (LU)', 'Embodiment in music education'],
+  ['Nov. 27, 2025', 'Possibility Studies Network, online', 'Lecture on the kinemusical approach & book presentation'],
+  ['Nov. 22, 2025', 'ISME Prime, online', 'Embodiment in music education'],
+  ['Feb. 21, 2025', 'Locomus, online', 'Embodied Music Pedagogy'],
+  ['Feb. 14, 2025', 'Prins Claus Conservatory, Groningen (NLl)', 'Embodiment in instrumental music education'],
+  ['Jan. 30, 2025', 'Garant, ANtwerpen (BE)', 'Book presentation "Kinemusical Approach"'],
+  ['Nov. 11, 2024', 'IFEN, Belval (LU)', 'Embodiment in music education'],
+  ['Oct. 22, 2024', 'EMU symposium, Grevenmacher (LU)', 'workshop "Kinemusical Approach"'],
+  ['Sept. 13, 2024', 'Heymans Colloquium, Groningen (NL)', 'Embodied Music Pedagogy'],
+  ['May. 27, 2024', 'Ringvorlesunf Methodologie Musikpädagogik, Vienna (AUT)', 'Investigating the role of movement in instrumental music learning: challenges and perspectives'],
+  ['May. 15, 2024', 'Rencontre scientifique "Musique et Transmission à la lumière des sciences cognitives"), Université de Strassbourg, online', 'Développer la créativité musicale par le mouvement : Naviguer dans le paysage d’affordances musicales'],
+  ['Mar. 5, 2024', "Berkeley's Embodied Underground, University of California, Berkeley (USA), online", 'The Role of the Body in Instrumental and Vocal Music Pedagogy: A Dynamical Systems Theory Perspective on the Music Teacher’s Bodily Engagement in Teaching and Learning'],
+];
+---
+<Base title="Dissemination" path="/dissemination">
+  <div class="page">
+    <h1 class="title" style="margin-bottom:8px">Publications</h1>
+    <p>click <a class="orange plain" href="/publications">here</a></p>
+    <h1 class="title" style="margin-top:36px">Lectures &amp; workshops</h1>
+    <div class="talks">
+      {talks.map(([date, venue, topic, extra]) => (
+        <p>
+          <span class="orange">{date}</span> ⎸ <span class="blue">{venue}</span> {topic}
+          {extra?.resources && <>{' '}&nbsp;&nbsp;&nbsp;➛ <a href="/isme2026">ressources</a></>}
+        </p>
+      ))}
+    </div>
+  </div>
+</Base>

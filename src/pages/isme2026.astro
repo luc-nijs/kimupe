@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+const pdf = (name) => `/files/isme2026-${name}.pdf`;
+---
+<Base title="ISME" path="/isme2026">
+  <div class="page">
+    <h1 class="title" style="margin-bottom:8px">ISME 2026 Resources &amp; Links</h1>
+    <p>⚠️  Please note that uploaded slides might slightly differ from the actual presentation due to last minute changes</p>
+
+    <h2 class="isme-head"><span class="blue">Workshop</span> <span class="orange">Creative movement in instrumental music learning: a kinemusical approach</span></h2>
+    <p>📆 July 27th, 4:05 PM</p>
+    <div class="isme-list">
+      <p>Slides <a href={pdf('workshop-slides')} target="_blank" rel="noopener" aria-label="Workshop slides (PDF)">🔗</a></p>
+      <p class="gap">Activity 1 - Meet 'n greet <a href={pdf('activity-1-meet-n-greet')} target="_blank" rel="noopener" aria-label="Activity 1 (PDF)">🔗</a></p>
+      <p>Activity 2 - Loosen that body <a href={pdf('activity-2-loosen-that-body')} target="_blank" rel="noopener" aria-label="Activity 2 (PDF)">🔗</a></p>
+      <p>Activity 3 - Walk the rhythm <a href={pdf('activity-3-walk-the-rhythm')} target="_blank" rel="noopener" aria-label="Activity 3 (PDF)">🔗</a></p>
+      <p>Activity 4 - Soccer in the Classroom 🔗</p>
+      <p>Activity 4 - ChoreoMusic <a href={pdf('activity-4-choreomusic')} target="_blank" rel="noopener" aria-label="Activity 4, ChoreoMusic (PDF)">🔗</a></p>
+      <p>LABAN Motif Notation <a href={pdf('laban-motif-notation')} target="_blank" rel="noopener" aria-label="LABAN Motif Notation (PDF)">🔗</a></p>
+    </div>
+
+    <h2 class="isme-head"><span class="blue">Presentation</span> <span class="orange">"Music teachers’ perspectives on instrumental music education in early childhood: a survey study."</span></h2>
+    <p>📆 July 29th, 1:50 PM</p>
+    <div class="isme-list">
+      <p><a href={pdf('survey-study-slides')} target="_blank" rel="noopener">Slides 🔗</a></p>
+    </div>
+
+    <h2 class="isme-head"><span class="blue">Presentation</span> <span class="orange">"Fostering a Synergy Between the Development of Well-Being and Musicianship: A Kinemusical Perspective"</span></h2>
+    <p>📆 July 30th, 11:20 AM</p>
+    <div class="isme-list">
+      <p>Slides <a href={pdf('wellbeing-slides')} target="_blank" rel="noopener" aria-label="Well-being presentation slides (PDF)">🔗</a></p>
+      <p>Article: <a href="https://doi.org/10.3390/educsci15091245" target="_blank" rel="noopener" style="text-decoration:underline">https://doi.org/10.3390/educsci15091245</a></p>
+    </div>
+  </div>
+</Base>
