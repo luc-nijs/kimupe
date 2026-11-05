@@ -1,27 +1,145 @@
 ---
 import Base from '../layouts/Base.astro';
+import { videos } from '../data/videos.js';
 
-const youtube = (id) => `https://www.youtube.com/embed/${id}`;
-const videos = [
-  [youtube('q7LvFlK54zs'), 'Stockhausen-In Freundschaft by Daniel Padmos'],
-  [youtube('BKezUd_xw20'), 'Salut Salon "Wettstreit zu viert" | "Competitive Foursome"'],
-  [youtube('UAM2y1SOsIs'), 'Riverdancing Violinists'],
-  [youtube('1O9Ro0TaXH4'), 'The IGUDESMAN & JOO UNICEF World Record of the Most Dancing Violinists'],
-  [youtube('C4hPgxe2Vf4'), 'Martin Fröst plays Peacock Tales... with a mask on!'],
-  [youtube('AIdwOPk9wEo'), 'K. Stockhausen "In Freundschaft" - Barbara Chemelli (Flute)'],
-  ['https://player.vimeo.com/video/6761185', 'InTouch (for moving flutist and electronics)'],
-  [youtube('CWAjo6VuF2w'), 'Transcend - Lindsey Stirling at TEDxBerkeley'],
-  [youtube('782GpSv9pTM'), "Movement and Music: University of Maryland Symphony Orchestra's Prelude to the Afternoon of a Faun"],
-  [youtube('f0heLa3kN4Q'), 'America got talent - Nuttin but stringz - Amazing violin'],
-];
+const watchUrl = (v) => v.kind === 'youtube' ? `https://www.youtube.com/watch?v=${v.id}` : `https://vimeo.com/${v.id}`;
 ---
 <Base title="Videos" path="/videos">
-  <div class="page" style="max-width:none">
-    <a class="suggest" href="mailto:luc.nijs@uni.lu?subject=Kimupe%20Video">Suggest a video</a>
-    <div class="videos">
-      {videos.map(([src, title]) => (
-        <iframe src={src} title={title} loading="lazy" allow="fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>
-      ))}
+  <div class="cf-page">
+    <h1 class="sr-only">Videos</h1>
+    <div class="cf" data-cf tabindex="0" aria-roledescription="carousel" aria-label="Videos">
+      <div class="cf-track">
+        {videos.map((v) => (
+          <a class="cf-item" href={watchUrl(v)} target="_blank" rel="noopener" draggable="false"
+             data-kind={v.kind} data-id={v.id} data-title={v.title} data-by={v.by} aria-label={`Play ${v.title}`}>
+            <img src={`/images/videos/${v.id}.jpg`} alt="" draggable="false" />
+            <span class="cf-play" aria-hidden="true"></span>
+            <span class="cf-cap"><b>{v.title}</b><span>{v.by}</span></span>
+          </a>
+        ))}
+      </div>
+      <button class="cf-nav prev" type="button" aria-label="Previous video" data-prev>
+        <svg viewBox="0 0 20 40" aria-hidden="true"><path d="M18 2 2 20l16 18" /></svg>
+      </button>
+      <button class="cf-nav next" type="button" aria-label="Next video" data-next>
+        <svg viewBox="0 0 20 40" aria-hidden="true"><path d="m2 2 16 18L2 38" /></svg>
+      </button>
     </div>
+    <a class="suggest" href="mailto:luc.nijs@uni.lu?subject=Kimupe%20Video">Suggest a video</a>
   </div>
+
+  <dialog class="lb" data-lb aria-label="Video player">
+    <button class="lb-x" type="button" aria-label="Close" data-close>×</button>
+    <button class="cf-nav prev" type="button" aria-label="Previous video" data-prev>
+      <svg viewBox="0 0 20 40" aria-hidden="true"><path d="M18 2 2 20l16 18" /></svg>
+    </button>
+    <div class="lb-box">
+      <div class="lb-frame" data-frame></div>
+      <div class="lb-info"><b data-title></b><span data-by></span></div>
+    </div>
+    <button class="cf-nav next" type="button" aria-label="Next video" data-next>
+      <svg viewBox="0 0 20 40" aria-hidden="true"><path d="m2 2 16 18L2 38" /></svg>
+    </button>
+  </dialog>
+
+  <script>
+    const cf = document.querySelector<HTMLElement>('[data-cf]')!;
+    const lb = document.querySelector<HTMLDialogElement>('[data-lb]')!;
+    const frame = lb.querySelector<HTMLElement>('[data-frame]')!;
+    const items = [...cf.querySelectorAll<HTMLAnchorElement>('.cf-item')];
+    const count = items.length;
+    let current = 0;
+
+    // Shortest distance from the centre, so the row wraps around.
+    const offsetOf = (i: number) => {
+      let d = (i - current + count) % count;
+      if (d > count / 2) d -= count;
+      return d;
+    };
+
+    function layout() {
+      items.forEach((item, i) => {
+        const d = offsetOf(i);
+        const side = Math.sign(d);
+        const far = Math.abs(d) > 1;
+        const move = d === 0 ? '0%, 0, 0' : far ? `${side * 168}%, 0, -1000px` : `${side * 105}%, 0, -600px`;
+        item.style.transform = `translate(-50%, -50%) translate3d(${move}) rotateY(${-side * 22}deg)`;
+        item.style.opacity = far ? '0' : '1';
+        item.style.zIndex = String(100 - Math.abs(d) * 10);
+        item.style.pointerEvents = far ? 'none' : '';
+        item.classList.toggle('active', d === 0);
+        item.tabIndex = d === 0 ? 0 : -1;
+        item.setAttribute('aria-hidden', String(d !== 0));
+      });
+    }
+
+    function go(index: number) {
+      current = (index + count) % count;
+      layout();
+    }
+
+    function embedUrl({ kind, id }: DOMStringMap) {
+      return kind === 'youtube'
+        ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1`
+        : `https://player.vimeo.com/video/${id}?autoplay=1`;
+    }
+
+    function loadPlayer() {
+      const data = items[current].dataset;
+      const player = document.createElement('iframe');
+      player.src = embedUrl(data);
+      player.title = data.title ?? '';
+      player.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
+      frame.replaceChildren(player);
+      lb.querySelector('[data-title]')!.textContent = data.title ?? '';
+      lb.querySelector('[data-by]')!.textContent = data.by ?? '';
+    }
+
+    function step(by: number) {
+      go(current + by);
+      if (lb.open) loadPlayer();
+    }
+
+    // Swiping or dragging changes video; a real click opens or selects one.
+    let startX: number | null = null;
+    let dragged = false;
+    cf.addEventListener('pointerdown', (e) => { startX = e.clientX; dragged = false; });
+    cf.addEventListener('pointerup', (e) => {
+      if (startX === null) return;
+      const moved = e.clientX - startX;
+      startX = null;
+      if (Math.abs(moved) > 40) { dragged = true; step(moved < 0 ? 1 : -1); }
+    });
+
+    items.forEach((item, i) => item.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (dragged) { dragged = false; return; }
+      if (i === current) { loadPlayer(); lb.showModal(); }
+      else go(i);
+    }));
+
+    document.querySelectorAll('[data-prev]').forEach((b) => b.addEventListener('click', () => step(-1)));
+    document.querySelectorAll('[data-next]').forEach((b) => b.addEventListener('click', () => step(1)));
+
+    cf.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      step(e.key === 'ArrowLeft' ? -1 : 1);
+      items[current].focus();
+    });
+    lb.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') step(-1);
+      if (e.key === 'ArrowRight') step(1);
+    });
+
+    // Closing removes the player, which stops the video.
+    lb.addEventListener('close', () => { frame.replaceChildren(); items[current].focus(); });
+    lb.querySelector('[data-close]')!.addEventListener('click', () => lb.close());
+    lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
+
+    cf.classList.add('ready');
+    layout();
+    // Animate only from now on, so the row doesn't slide into place on page load.
+    requestAnimationFrame(() => requestAnimationFrame(() => cf.classList.add('live')));
+  </script>
 </Base>
