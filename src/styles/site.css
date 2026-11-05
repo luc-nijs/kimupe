@@ -50,8 +50,8 @@ header.top { padding: 25px 16px 0; text-align: center; }
 .book-cover { width: 90px; margin: 24px auto 0; }
 
 /* Publications */
-.refs p { line-height: 1.1; }
-.refs p + p { margin-top: 18px; }
+.refs p { padding-left: 2em; text-indent: -2em; line-height: 1.3; overflow-wrap: anywhere; }
+.refs p + p { margin-top: 14px; }
 
 /* Dissemination */
 .talks { line-height: 2; }
