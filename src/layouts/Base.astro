@@ -2,8 +2,27 @@
 import '../styles/site.css';
 import { nav } from '../data/nav.js';
 
-interface Props { title: string; path: string }
-const { title, path } = Astro.props;
+interface Props { title: string; description?: string; path: string; noindex?: boolean }
+const { title, description = '', path, noindex = false } = Astro.props;
+
+const site = Astro.site ?? 'https://www.kimupe.education';
+const canonical = new URL(path === '/' ? '/' : `${path}/`, site).href;
+const ogImage = new URL('/images/og-kimupe.jpg', site).href;
+const siteData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'KiMuPe',
+  alternateName: 'Kinemusical Approach',
+  url: new URL('/', site).href,
+  description: 'An approach to instrumental music teaching and learning that integrates body movement, developed by Luc Nijs.',
+  author: {
+    '@type': 'Person',
+    name: 'Luc Nijs',
+    jobTitle: 'Associate Professor in Early Childhood Music Education',
+    worksFor: { '@type': 'CollegeOrUniversity', name: 'University of Luxembourg' },
+    sameAs: ['https://www.lucnijs.be/', 'https://wwwen.uni.lu/recherche/fhse/desw/people/luc_nijs'],
+  },
+};
 
 const isOn = (item) => item.href === path || (item.children ?? []).some((c) => c.href === path);
 ---
@@ -12,8 +31,21 @@ const isOn = (item) => item.href === path || (item.children ?? []).some((c) => c
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} | Kimupe</title>
-    <meta name="keywords" content="music and movement" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="KiMuPe" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The KiMuPe logo above sketches of young musicians playing clarinet and saxophone while moving" />
+    <meta name="twitter:card" content="summary_large_image" />
+    {path === '/' && <script type="application/ld+json" set:html={JSON.stringify(siteData).replace(/</g, '\\u003c')} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Manrope:wght@300..700&display=swap" rel="stylesheet" />
   </head>
