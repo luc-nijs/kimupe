@@ -1,24 +1,72 @@
 ---
 import Base from '../layouts/Base.astro';
+import { SHEETS, publicationsHtml, countText } from '../lib/sheets.js';
+import { load } from '../lib/load.js';
+import pubCsv from '../data/KIMUPE_publications.csv?raw';
+
+// The publications come from the sheet KIMUPE_publications (see src/lib/sheets.js).
+const pubs = await load(SHEETS.publications, pubCsv);
 ---
 <Base title={"Publications | KiMuPe"} description={"Publications on the kinemusical approach and background literature on embodiment in instrumental music education, by Luc Nijs and colleagues."} path="/publications">
   <div class="page">
     <h1 class="title">Publications</h1>
-    <h2 class="subtitle">On the Kinemusical Approach</h2>
-    <div class="refs">
-      <p>Nijs, L. (2025). Fostering a synergy between the development of well-being and musicianship: A kinemusical perspective. <em>Education Sciences</em>, <em>15</em>(9), Article 1245. <a href="https://doi.org/10.3390/educsci15091245" target="_blank" rel="noopener">https://doi.org/10.3390/educsci15091245</a></p>
-      <p>Nijs, L. (2024). <em>Bewegend leren musiceren: Een kinemuzikale benadering van het instrumentaal muziekonderwijs</em> [Learning to play music through movement: A kinemusical approach to instrumental music education]. Garant. <a class="plain" href="https://www.maklugarant.eu/nl/products/details/bewegend-leren-musiceren-een-kinemuzikale-benadering-van-het-instrumentaal-muziekonderwijs-luc-nijs-9789044139334-457631" target="_blank" rel="noopener">ISBN 978-90-441-3933-4</a></p>
-      <p>Nijs, L. (2019). Moving together while playing music: Promoting involvement through student-centred collaborative practices. In S. Gies &amp; J. H. Sætre (Eds.), <em>Becoming musicians: Student involvement and teacher collaboration in higher music education</em>. The Norwegian Academy of Music.</p>
+    <div class="pb-controls">
+      <span><label for="pb-group">Group by</label><select id="pb-group"><option value="section">topic</option><option value="year">year</option><option value="type">type</option></select></span>
+      <span><label for="pb-type">Type</label><select id="pb-type"><option value="">all</option></select></span>
+      <span><label for="pb-from">From</label><select id="pb-from"></select><label for="pb-to" class="to">to</label><select id="pb-to"></select></span>
+      <span><input type="search" id="pb-q" placeholder="author, title, journal…" size="20" aria-label="Search publications" /></span>
+      <span class="pb-count" id="pb-count">{countText(pubs)}</span>
     </div>
-    <h2 class="subtitle">Background literature</h2>
-    <div class="refs">
-      <p>Serra Marin, L., Gammoudi, H., Behzadaval, B., Leiva, L. A., Chihi, I., &amp; Nijs, L. (2026). Embodiment indicators of music skill acquisition: A scoping review of psychophysiological and biomechanical studies. <em>Music &amp; Science</em>, <em>9</em>, 1–32. <a href="https://doi.org/10.1177/20592043261439571" target="_blank" rel="noopener">https://doi.org/10.1177/20592043261439571</a></p>
-      <p>Nijs, L., &amp; Bremmer, M. (invited, 2026). Towards an embodied instrumental music pedagogy: Creativity through embodied affordance navigation. In B. Föllmi &amp; E. Pineda (Eds.), <em>Musique et transmission à la lumière des sciences cognitives</em>. Éditions des Archives Contemporaines. <a href="https://eac.ac/publications/9782813005748" target="_blank" rel="noopener">https://eac.ac/publications/9782813005748</a></p>
-      <p>Nijs, L., Grinspun, N., &amp; Fortuna, S. (2024). Developing musical creativity through movement: Navigating the musical affordance landscape. <em>Creativity Research Journal</em>, <em>37</em>(3), 427–451. <a href="https://doi.org/10.1080/10400419.2023.2299159" target="_blank" rel="noopener">https://doi.org/10.1080/10400419.2023.2299159</a></p>
-      <p>Nijs, L., Bremmer, M., van der Schyff, D., &amp; Schiavio, A. (2023). Embodying dynamical systems in music performance. <em>Music Performance Research</em>, <em>11</em>, 58–84. <a href="https://doi.org/10.14439/mpr.11.3" target="_blank" rel="noopener">https://doi.org/10.14439/mpr.11.3</a></p>
-      <p>Nijs, L., &amp; Bremmer, M. (2019). Embodiment in early childhood music education. In B. Ilari &amp; S. Young (Eds.), <em>Music in early childhood: Multi-disciplinary perspectives and inter-disciplinary exchanges</em> (pp. 87–102). Springer. <a href="https://doi.org/10.1007/978-3-030-17791-1_6" target="_blank" rel="noopener">https://doi.org/10.1007/978-3-030-17791-1_6</a></p>
-      <p>Nijs, L. (2017). The merging of musician and musical instrument: Incorporation, presence and the levels of embodiment. In M. Lesaffre, P.-J. Maes, &amp; M. Leman (Eds.), <em>The Routledge companion to embodied music interaction</em> (pp. 49–57). Routledge. <a href="https://doi.org/10.4324/9781315621364-6" target="_blank" rel="noopener">https://doi.org/10.4324/9781315621364-6</a></p>
-      <p>Nijs, L., Lesaffre, M., &amp; Leman, M. (2013). The musical instrument as a natural extension of the musician. In M. Castellengo &amp; H. Genevois (Eds.), <em>Music and its instruments</em> (pp. 467–484). Éditions Delatour France.</p>
-    </div>
+    <div id="publications" set:html={publicationsHtml(pubs)} />
   </div>
 </Base>
+
+<script is:inline type="application/json" id="pb-data" set:html={JSON.stringify(pubs).replace(/</g, '\\u003c')}></script>
+
+<script>
+  // Read the sheet again in the browser, so changes show up straight away,
+  // and run the filters.
+  import { SHEETS, parseCSV, esc, TYPE_ORDER, TYPE_LABEL, publicationsHtml, filterPublications, countText } from '../lib/sheets.js';
+  const $ = (id) => document.getElementById(id) as HTMLSelectElement;
+  let pubs = JSON.parse($('pb-data').textContent || '[]');
+
+  function apply() {
+    const hit = filterPublications(pubs, {
+      type: $('pb-type').value, from: Number($('pb-from').value), to: Number($('pb-to').value), q: $('pb-q').value,
+    });
+    $('pb-count').textContent = countText(hit);
+    $('publications').innerHTML = publicationsHtml(hit, $('pb-group').value);
+  }
+
+  function controls() {
+    const keepType = $('pb-type').value;
+    const types = [...new Set(pubs.map((r) => String(r.type || '').toLowerCase()).filter(Boolean))]
+      .sort((a, b) => (TYPE_ORDER.indexOf(a) + 1 || 99) - (TYPE_ORDER.indexOf(b) + 1 || 99));
+    $('pb-type').innerHTML = '<option value="">all</option>' + types.map((t) => `<option value="${esc(t)}">${esc(TYPE_LABEL[t] || t)}</option>`).join('');
+    $('pb-type').value = types.includes(keepType) ? keepType : '';
+    const years = pubs.map((r) => parseInt(r.year, 10)).filter((y) => y > 1900);
+    const lo = Math.min(...years), hi = Math.max(...years);
+    let opts = '';
+    for (let y = hi; y >= lo; y--) opts += `<option>${y}</option>`;
+    // Keep a range the visitor already chose, if those years still exist.
+    const keepFrom = $('pb-from').value, keepTo = $('pb-to').value;
+    $('pb-from').innerHTML = opts; $('pb-to').innerHTML = opts;
+    $('pb-from').value = years.includes(Number(keepFrom)) ? keepFrom : String(lo);
+    $('pb-to').value = years.includes(Number(keepTo)) ? keepTo : String(hi);
+  }
+
+  controls();
+  for (const id of ['pb-group', 'pb-type', 'pb-from', 'pb-to']) $(id).addEventListener('change', apply);
+  $('pb-q').addEventListener('input', apply);
+
+  (async () => {
+    if (!SHEETS.publications) return;
+    try {
+      const r = await fetch(SHEETS.publications, { cache: 'no-store' });
+      if (!r.ok) return;
+      pubs = parseCSV(await r.text());
+      controls();
+      apply();
+    } catch {}
+  })();
+</script>

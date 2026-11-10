@@ -153,3 +153,13 @@ footer { margin-top: 32px; padding: 14px 16px; text-align: center; }
   .lb .cf-nav.next { left: 46px; right: auto; }
   .form { grid-template-columns: 1fr; }
 }
+
+/* Publications: filter bar, as on lucnijs.be */
+.pb-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin: -6px 0 6px; font-size: 14px; }
+.pb-controls label { color: #a3a2a8; margin-right: 6px; }
+.pb-controls label.to { margin-left: 6px; }
+.pb-controls select, .pb-controls input { padding: 4px 8px; background: #111; border: 1px solid #333; border-radius: 5px; color: var(--text); font: inherit; }
+.pb-controls select:focus, .pb-controls input:focus { outline: 2px solid var(--orange); outline-offset: -1px; }
+.pb-count { margin-left: auto; color: #a3a2a8; }
+.subtitle .count { margin-left: 4px; color: #a3a2a8; font: 400 13px var(--body); }
+.none { margin-top: 24px; color: #a3a2a8; }
